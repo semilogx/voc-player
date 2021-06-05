@@ -79,9 +79,9 @@ export const getStreamConfig = (stream, audioOnly, h264Only, preferredAudioLangu
             plugin.render();
           })
         } else {
-          if (player._options.poster != player._options.presetPoster) {
+          plugin.hidePlayButton();
+          if (plugin.options.poster != player._options.presetPoster) {
             plugin.options.poster = player._options.presetPoster;
-            plugin.hidePlayButton();
             plugin.render();
           }
         }
