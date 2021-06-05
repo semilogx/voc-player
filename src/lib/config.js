@@ -70,16 +70,19 @@ export const getStreamConfig = (stream, audioOnly, h264Only, preferredAudioLangu
         return;
 
       function _changePoster(mediaActive) {
+        let plugin = player.getPlugin('poster');
         if (mediaActive) {
           const posterUrl = `//cdn.c3voc.de/thumbnail/${stream}/poster.jpeg?t=${Date.now()}`;
           loadImage(posterUrl).then(() => {
-            player.configure({
-              poster: posterUrl,
-            })
+            plugin.options.poster = posterUrl;
+            plugin.showPlayButton();
+            plugin.render();
           })
         } else {
           if (player._options.poster != player._options.presetPoster) {
-            player.configure({ poster: player._options.presetPoster });
+            plugin.options.poster = player._options.presetPoster;
+            plugin.hidePlayButton();
+            plugin.render();
           }
         }
       }
