@@ -20,7 +20,7 @@ export function checkMedia(url, callback) {
       xhr.abort();
     }
   }
-  xhr.open("GET", url, true);
+  xhr.open("HEAD", url, true);
   xhr.send(null);
 };
 
