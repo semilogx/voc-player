@@ -41,6 +41,7 @@ export default class VOCPlayer extends BaseObject {
         this.listenToOnce(this._player, Events.PLAYER_READY, this._addEventListeners.bind(this));
       }
       if (config.vocConfigUpdate) {
+        setTimeout(() => config.vocConfigUpdate(this._player), 2500);
         setInterval(() => config.vocConfigUpdate(this._player), 30000);
       }
       return this._player;
