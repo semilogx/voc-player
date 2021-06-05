@@ -1,4 +1,4 @@
-import { getMediaLectureSources, loadImage } from "lib/util";
+import { getMediaLectureSources, loadImage, checkMedia } from "lib/util";
 import watermark from "public/watermark";
 
 /**
@@ -65,14 +65,25 @@ export const getStreamConfig = (stream, audioOnly, h264Only, preferredAudioLangu
       onError: errorHandler
     },
     vocConfigUpdate: (player) => {
+      // console.log(player);
       if (document.visibilityState !== "visible" || player.isPlaying())
         return;
-      const posterUrl = `//cdn.c3voc.de/thumbnail/${stream}/poster.jpeg?t=${Date.now()}`;
-      loadImage(posterUrl).then(() => {
-        player.configure({
-          poster: posterUrl,
-        })
-      })
+
+      function _changePoster(mediaActive) {
+        if (mediaActive) {
+          const posterUrl = `//cdn.c3voc.de/thumbnail/${stream}/poster.jpeg?t=${Date.now()}`;
+          loadImage(posterUrl).then(() => {
+            player.configure({
+              poster: posterUrl,
+            })
+          })
+        } else {
+          if (player._options.poster != player._options.presetPoster) {
+            player.configure({ poster: player._options.presetPoster });
+          }
+        }
+      }
+      checkMedia(player._options.source.source, _changePoster);
     }
   };
 

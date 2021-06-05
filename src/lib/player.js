@@ -72,6 +72,11 @@ export default class VOCPlayer extends BaseObject {
       plugins.forEach((plugin) => console.log(plugin.name, plugin.type))
     }
 
+    let presetPoster = '';
+    if (options.poster) {
+      presetPoster = options.poster;
+    }
+
     let configPromise = Promise.resolve({});
     if (options.vocStream) {
       configPromise = getStreamConfig(options.vocStream, options.audioOnly, options.h264Only, options.preferredAudioLanguage, this._handleError.bind(this));
@@ -81,7 +86,7 @@ export default class VOCPlayer extends BaseObject {
 
     // Combine configs
     return configPromise.then((sourceConfig) => {
-      return Object.assign(getBaseConfig(), sourceConfig, options, {plugins});
+      return Object.assign(getBaseConfig(), sourceConfig, options, {plugins}, {presetPoster});
     });
   }
 
