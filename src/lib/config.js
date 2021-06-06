@@ -1,3 +1,4 @@
+// import Browser from "clappr/src/components/browser";
 import { getMediaLectureSources, loadImage, checkMedia } from "lib/util";
 import watermark from "public/watermark";
 
@@ -64,29 +65,38 @@ export const getStreamConfig = (stream, audioOnly, h264Only, preferredAudioLangu
     errorPlugin: {
       onError: errorHandler
     },
-    vocConfigUpdate: (player) => {
-      // console.log(player);
+    vocConfigUpdate: (player, container) => {
       if (document.visibilityState !== "visible" || player.isPlaying())
         return;
 
-      function _changePoster(mediaActive) {
+      function changePoster(mediaActive) {
         let plugin = player.getPlugin('poster');
         if (mediaActive) {
           const posterUrl = `//cdn.c3voc.de/thumbnail/${stream}/poster.jpeg?t=${Date.now()}`;
           loadImage(posterUrl).then(() => {
             plugin.options.poster = posterUrl;
+            // allow chrome and user interaction
+            //
+            // this is the standard config disabling chrome for mobile, but doesn't work atm:
+            // container._options.chromeless = Browser.isMobile;
+            // TODO: should replace the next line if fixed
+            container._options.chromeless = false;
+            container._options.allowUserInteraction = true;
             plugin.showPlayButton();
             plugin.render();
           })
         } else {
           plugin.hidePlayButton();
-          if (plugin.options.poster != player._options.presetPoster) {
-            plugin.options.poster = player._options.presetPoster;
+          // really prevent user interaction
+          container._options.chromeless = true;
+          container._options.allowUserInteraction = false;
+          if (plugin.options.poster != plugin.options.presetPoster) {
+            plugin.options.poster = plugin.options.presetPoster;
             plugin.render();
           }
         }
       }
-      checkMedia(player._options.source.source, _changePoster);
+      checkMedia(player._options.source.source, changePoster);
     }
   };
 
