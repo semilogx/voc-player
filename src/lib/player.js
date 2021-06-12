@@ -10,7 +10,7 @@ import {getBaseConfig, getLectureConfig, getStreamConfig} from "lib/config";
 
 const DEFAULT_TIMEOUT = 5;
 const MAX_TIMEOUT = 15;
-const MAX_NUM_RETRIES = -1;  // set to negative integer for no limit
+const MAX_NUM_RETRIES = 10;  // set to negative integer for no limit
 
 const isShakaError = (error, code) => {
   return error.origin == "dash_shaka_playback" && (
