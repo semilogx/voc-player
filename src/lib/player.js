@@ -10,6 +10,7 @@ import {getBaseConfig, getLectureConfig, getStreamConfig} from "lib/config";
 
 const DEFAULT_TIMEOUT = 5;
 const MAX_TIMEOUT = 15;
+const MAX_NUM_RETRIES = -1;  // set to negative integer for no limit
 
 const isShakaError = (error, code) => {
   return error.origin == "dash_shaka_playback" && (
@@ -29,6 +30,8 @@ export default class VOCPlayer extends BaseObject {
     super();
     this.timeout = DEFAULT_TIMEOUT;
     this.maxTimeout = MAX_TIMEOUT;
+    this.maxNumRetries = MAX_NUM_RETRIES;
+    this.numRetries = 0;
 
     // Async configuration
     this._playerPromise = this._getConfig(options).then(config => {
@@ -165,7 +168,6 @@ export default class VOCPlayer extends BaseObject {
       timeout: setTimeout(this._waitForMedia.bind(this), timeout * 1000),
     }
 
-
     // Provide mighty helpful error message
     if (isShakaError(error, 1001) || isHlsError(error, 404)) {
       return {
@@ -227,11 +229,21 @@ export default class VOCPlayer extends BaseObject {
   _handleMediaCheck(success) {
     if (success) {
       console.log("try playing again, media should be available");
+      this.numRetries = Math.min(this.numRetries, 0);
       this._player.play();
     } else {
-      const timeout = this._getTimeout();
-      console.log(`test for media failed, retrying in ~${Math.round(timeout)}s`);
-      setTimeout(this._waitForMedia.bind(this), timeout * 1000);
+      if (this.numRetries < this.maxNumRetries) {
+        if (this.numRetries >= 0)
+          this.numRetries++;
+        const timeout = this._getTimeout();
+        console.log(`test for media failed, retrying in ~${Math.round(timeout)}s`);
+        setTimeout(this._waitForMedia.bind(this), timeout * 1000);
+      } else {
+        console.log(`test for media failed ${this.numRetries} times, stopping to retry`);
+        this.numRetries = Math.min(this.numRetries, 0);
+        this._recovery.clearOverlay();
+        this._player.stop();
+      }
     }
   }
 
