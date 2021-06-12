@@ -70,29 +70,29 @@ export const getStreamConfig = (stream, audioOnly, h264Only, preferredAudioLangu
         return;
 
       function changePoster(mediaActive) {
-        let plugin = player.getPlugin('poster');
+        let posterPlugin = container.getPlugin('poster');
         if (mediaActive) {
           const posterUrl = `//cdn.c3voc.de/thumbnail/${stream}/poster.jpeg?t=${Date.now()}`;
           loadImage(posterUrl).then(() => {
-            plugin.options.poster = posterUrl;
+            posterPlugin.options.poster = posterUrl;
             // allow chrome and user interaction
             //
             // this is the standard config disabling chrome for mobile, but doesn't work atm:
             // container._options.chromeless = Browser.isMobile;
-            // TODO: should replace the next line if fixed
+            // TODO: ^ should replace the next line if possible
             container._options.chromeless = false;
             container._options.allowUserInteraction = true;
-            plugin.showPlayButton();
-            plugin.render();
+            posterPlugin.showPlayButton();
+            posterPlugin.render();
           })
         } else {
-          plugin.hidePlayButton();
-          // really prevent user interaction
+          posterPlugin.hidePlayButton();
+          // prevent user interaction
           container._options.chromeless = true;
           container._options.allowUserInteraction = false;
-          if (plugin.options.poster != plugin.options.presetPoster) {
-            plugin.options.poster = plugin.options.presetPoster;
-            plugin.render();
+          if (posterPlugin.options.poster != posterPlugin.options.presetPoster) {
+            posterPlugin.options.poster = posterPlugin.options.presetPoster;
+            posterPlugin.render();
           }
         }
       }
